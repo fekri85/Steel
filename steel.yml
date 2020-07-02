@@ -1,0 +1,30 @@
+---
+- hosts: webserver
+  remote_user: admin
+  become: yes
+  become_method: sudo
+  vars:
+   dockerfile_path: $PWD/docker
+   steel_image: steelimage
+  tasks:
+    - name: pull centos image
+      docker_image:
+        name: centos:7
+        source: pull
+
+    - name: Build steel image
+      docker_image:
+        path: "{{ dockerfile_path }}"
+        name: "{{ steel_image }}"
+        state: present
+
+    - name: Running steel container
+      docker_container:
+        name: steel
+        image: "{{ steel_image }}"
+        state: started
+        ports:
+        - "80:80"
+        tty: true
+        detach: true
+ 
